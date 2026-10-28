@@ -20,7 +20,7 @@
 <style>
   /* Раскладка этапа 5, доработка 1 (решение 63): верх — блок в левом верхнем углу, два ряда по три
      («Качество ▾ · Разобрать⇄Собрать · Подсветка» / «Картер · Крышка · Муфты»); низ — один ряд «◀ ■ ▶ ⟲ ⌂ Облёт» по центру.
-     Подложки нет: кнопки полупрозрачные (заливка 70 %), текст и значки непрозрачные с лёгкой тенью; размытия фона нет (дорого для телефона).
+     Подложки нет: кнопки полупрозрачные (заливка 70 %), текст и значки непрозрачные, без тени (тень дорогая в WebKit); размытия фона нет.
      Телефон вертикально — оба блока во всю ширину; телефон горизонтально (высота < 500 px) — верх в один ряд из шести. */
   :root { --bg: #1b1d20; --txt: #fff; --line: rgba(255,255,255,.28); --btn: rgba(30,34,39,.70); --btn-hi: rgba(52,58,65,.70); --acc: rgba(47,158,110,.70); --acc-line: rgba(90,215,160,.85); }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -29,7 +29,9 @@
   canvas { display: block; width: 100vw; height: 100vh; touch-action: none; }
   button, .sel { min-height: 46px; min-width: 46px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line);
     background: var(--btn); color: var(--txt); font: 600 16px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; white-space: nowrap; cursor: pointer;
-    text-shadow: 0 1px 2px rgba(0,0,0,.85), 0 0 1px rgba(0,0,0,.9); -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  /* тень у текста кнопок убрана: в WebKit (эмуляция iPhone) она стоила ≈13 мс на кадр — слои поверх WebGL перерисовываются каждый кадр;
+     белый текст и так читается на тёмной заливке 70 % */
   button:hover, .sel:hover { background: var(--btn-hi); }
   button:active { background: rgba(70,78,88,.75); }
   button:focus-visible, .sel:focus-visible { outline: 2px solid var(--acc-line); outline-offset: 2px; }
@@ -53,7 +55,7 @@
   body.noq #explode, body.noq #lights { grid-column: span 3; }
   body.noq #housing2, body.noq #housing1, body.noq #couplings { grid-column: span 2; }
   #legal { position: fixed; z-index: 4; right: max(10px, env(safe-area-inset-right)); bottom: calc(max(8px, env(safe-area-inset-bottom)) + 54px);
-    font-size: 11px; color: rgba(255,255,255,.82); text-shadow: 0 1px 2px #000; pointer-events: none; }
+    font-size: 11px; color: rgba(255,255,255,.9); background: rgba(0,0,0,.38); padding: 2px 6px; border-radius: 4px; pointer-events: none; }
 
   /* телефон вертикально: оба блока во всю ширину, низ — шесть равных кнопок; строка © — над нижним рядом */
   @media (max-width: 639px) {
