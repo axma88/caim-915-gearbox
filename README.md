@@ -4,6 +4,8 @@
 
 **Открыть: https://axma88.github.io/caim-915-gearbox/**
 
+**Скачать файл для ПК и Android:** https://github.com/axma88/caim-915-gearbox/releases (последний выпуск, файл `CAIM915_gearbox.html`) · **Download the file for PC and Android:** same link
+
 ## По-русски
 
 Интерактивная **концепт-модель редуктора CAIM 915** прямо в браузере — на компьютере, Android и iPhone, без установки программ.
