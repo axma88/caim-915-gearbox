@@ -15,7 +15,7 @@
 - **Картер, Крышка, Муфты** — показать или скрыть части.
 - **Подсветка** — включить или выключить подсветку.
 - **◀ ■ ▶ ⟲** — вращение шестерён назад, пауза, вперёд, сброс в исходное положение.
-- **⌂** — вид по умолчанию; **Облёт** — облёт камеры вокруг модели за 10 с.
+- **⌂** — вид по умолчанию; **Облёт** — облёт камеры вокруг модели за 10 с; **⛶** — на весь экран (где браузер это поддерживает).
 - **Качество** (список вверху слева) — высокое (мощные ПК), среднее (ПК), низкое (телефоны); выбирается автоматически при открытии.
 - Камера: мышь — вращение (левая кнопка), приближение (колесо), сдвиг (средняя или правая кнопка); на телефоне — один палец, щипок, два пальца.
 
@@ -33,7 +33,7 @@ The model was built in Autodesk Fusion 360 and prepared in Autodesk VRED (materi
 - **Картер, Крышка, Муфты** (Housing, Cover, Couplings) — show or hide parts.
 - **Подсветка** (Lights) — switch the lighting on or off.
 - **◀ ■ ▶ ⟲** — rotate the gears backward, pause, forward, reset to the initial position.
-- **⌂** — default view; **Облёт** (Orbit) — a 10-second camera orbit around the model.
+- **⌂** — default view; **Облёт** (Orbit) — a 10-second camera orbit around the model; **⛶** — full screen (where the browser supports it).
 - **Качество** (Quality, the list at the top left) — high (powerful PCs), medium (PCs), low (phones); chosen automatically on start.
 - Camera: mouse — rotate (left button), zoom (wheel), pan (middle or right button); on a phone — one finger, pinch, two fingers.
 

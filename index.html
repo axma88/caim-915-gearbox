@@ -49,7 +49,10 @@
     display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; width: min(480px, calc(100vw - 16px)); }
   #top > * { width: 100%; min-width: 0; }
   #bottom { position: fixed; z-index: 5; left: 50%; transform: translateX(-50%); bottom: max(8px, env(safe-area-inset-bottom));
-    display: grid; grid-template-columns: repeat(4, 46px) 46px auto; gap: 6px; }
+    display: flex; gap: 6px; }
+  #bottom > .ico { width: 46px; flex: 0 0 auto; }
+  #fs svg { width: 20px; height: 20px; display: block; margin: auto; }
+  [hidden] { display: none !important; }
   body.noq #quality { display: none; }
   body.noq #top { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   body.noq #explode, body.noq #lights { grid-column: span 3; }
@@ -57,24 +60,30 @@
   #legal { position: fixed; z-index: 4; right: max(10px, env(safe-area-inset-right)); bottom: calc(max(8px, env(safe-area-inset-bottom)) + 54px);
     font-size: 11px; color: rgba(255,255,255,.9); background: rgba(0,0,0,.38); padding: 2px 6px; border-radius: 4px; pointer-events: none; }
 
-  /* телефон вертикально: оба блока во всю ширину, низ — шесть равных кнопок; строка © — над нижним рядом */
+  /* телефон вертикально: оба блока во всю ширину, низ — семь кнопок в ряд (значки ≥ 44 px, «Облёт» шире); строка © — над нижним рядом */
   @media (max-width: 639px) {
     #top { right: max(8px, env(safe-area-inset-right)); width: auto; }
-    #bottom { left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); transform: none; grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(0, 1.4fr); }
-    #bottom > * { min-width: 0; }
+    #bottom { left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); transform: none; }
+    #bottom > button { flex: 1 1 44px; min-width: 44px; width: auto; padding: 0 6px; }
+    #bottom > #orbit { flex: 1.4 1 54px; }
     button, .sel { font-size: 15px; padding: 0 8px; }
     .sel { padding-right: 26px; }
   }
-  /* телефон горизонтально: верх — один ряд из шести (или пяти в файле для сайта), низ — один ряд; кнопки 44 px */
-  @media (max-height: 499px) and (min-width: 640px) {
-    #top { grid-template-columns: 1.25fr 1.15fr 1.15fr 1fr 1fr 1fr; width: min(720px, calc(100vw - 16px)); }
-    body.noq #top { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-    body.noq #explode, body.noq #lights, body.noq #housing2, body.noq #housing1, body.noq #couplings { grid-column: auto; }
-    button, .sel { min-height: 44px; font-size: 15px; padding: 0 8px; }
-    .sel { padding-right: 26px; }
-    #bottom { grid-template-columns: repeat(5, 44px) auto; }
-    #legal { bottom: calc(max(8px, env(safe-area-inset-bottom)) + 50px); }
-  }
+  /* узкий телефон (360 px): ряд из семи без переноса и без обрезки — значки 44 px, промежуток 3 px, «Облёт» 14 px с малым отступом */
+  @media (max-width: 380px) { #bottom { gap: 3px; } #bottom > button { padding: 0 3px; } #bottom > #orbit { font-size: 14px; padding: 0 2px; } }
+  /* телефон горизонтально (высота < 500 px) — буква «Г» (решение 65; класс land ставит app.js): слева столбец, внизу ряд правее столбца;
+     не влезшие по высоте кнопки app.js переносит по порядку в начало нижнего ряда (класс over: столбец кончается над нижним рядом) */
+  body.land #top { display: flex; flex-direction: column; width: 150px; right: auto; bottom: max(8px, env(safe-area-inset-bottom)); gap: 6px; }
+  body.land #top > * { flex: 0 0 44px; min-height: 44px; width: 100%; font-size: 15px; padding: 0 8px; }
+  body.land .sel { padding-right: 26px; }
+  body.land #bottom { left: calc(max(8px, env(safe-area-inset-left)) + 156px); right: auto; transform: none; }
+  body.land #bottom > button { min-height: 44px; font-size: 15px; }
+  body.land #bottom > .ico { width: 44px; }
+  body.land #bottom > .moved { padding: 0 12px; }
+  body.land #bottom > select.moved { padding-right: 28px; }
+  body.land.over #top { bottom: calc(max(8px, env(safe-area-inset-bottom)) + 50px); }
+  body.land.over #bottom { left: max(8px, env(safe-area-inset-left)); }
+  body.land #legal { bottom: calc(max(8px, env(safe-area-inset-bottom)) + 50px); }
 
   #load { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px;
     background: rgba(27,29,32,.78); z-index: 6; font-size: 22px; text-align: center; padding: 16px; }
@@ -89,6 +98,11 @@
   body.dev #dev { display: flex; }
   #state { font: 13px/1.3 ui-monospace, Consolas, monospace; color: #c9d0d7; }
   #dev button { min-height: 40px; font-size: 14px; }
+  .tune { flex-basis: 100%; display: grid; grid-template-columns: auto minmax(90px, 1fr) 3.2em; gap: 4px 8px; align-items: center; font-size: 13px; color: #dfe4e9; }
+  .tune input[type=range] { width: 100%; accent-color: #2f9e6e; height: 32px; touch-action: none; }
+  .tune b { font: 600 13px ui-monospace, Consolas, monospace; text-align: right; }
+  .tune button { grid-column: 1 / -1; }
+  #cshOut { grid-column: 1 / -1; display: none; width: 100%; font: 12px ui-monospace, Consolas, monospace; background: #1b1d20; color: #eef1f4; border: 1px solid #4a5058; border-radius: 6px; padding: 4px; }
 </style>
 
 </head>
@@ -112,9 +126,17 @@
   <button id="reset" class="ico" title="Шестерни в исходное положение" aria-label="Шестерни в исходное положение">⟲</button>
   <button id="home" class="ico" title="Вид по умолчанию" aria-label="Вид по умолчанию">⌂</button>
   <button id="orbit" aria-pressed="false" title="Облёт камеры вокруг модели за 10 с (повторное нажатие или касание — стоп)">Облёт</button>
+  <button id="fs" class="ico" title="На весь экран" aria-label="На весь экран"></button>
 </div>
 <div id="legal">© CAIM, все права защищены. Делиться ссылкой можно.</div>
-<div id="dev" role="group" aria-label="Меню разработчика"><span id="state"></span><button id="test">Тест 10 с</button><button id="devClose" title="Закрыть меню разработчика">✕</button></div>
+<div id="dev" role="group" aria-label="Меню разработчика"><span id="state"></span><button id="test">Тест 10 с</button><button id="devClose" title="Закрыть меню разработчика">✕</button>
+  <!-- TEMP (доработка 2 этапа 5): ползунки цветной тени — Руслан подбирает на глаз; значения затем зашиваются (CSH в app.js), ползунки убираются -->
+  <div id="cshTune" class="tune">
+    <label for="cshS">Цветная тень: сила</label><input id="cshS" type="range" min="0" max="1.5" step="0.05"><b id="cshSv"></b>
+    <label for="cshB">размытие</label><input id="cshB" type="range" min="0.5" max="4" step="0.1"><b id="cshBv"></b>
+    <button id="cshCopy">Скопировать значения</button><textarea id="cshOut" rows="1" readonly aria-label="Значения цветной тени"></textarea>
+  </div>
+</div>
 <div id="load"><div id="loadtitle">Загрузка</div><div class="pct" id="pct">0 %</div><div id="loadinfo"></div></div>
 <div id="res"><pre id="resText"></pre><button id="resClose">Закрыть</button></div>
 <script>
