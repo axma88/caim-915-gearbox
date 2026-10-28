@@ -18,122 +18,102 @@
 <meta name="twitter:image" content="https://axma88.github.io/caim-915-gearbox/preview.png">
 <link rel="icon" href="data:,">
 <style>
-  /* Панель этапа 5 (решения 57, 58): одна для всех экранов, на основе панели тестовой сборки. Раскладка по ширине:
-     ≥ 1180 px — одна строка; 640–1179 px — две строки (структура · видимость · подсветка / привод · вид · качество);
-     < 640 px — сетка из 4 строк; низкий экран (телефон горизонтально, высота < 500 px) — две строки и кнопка «свернуть». */
-  :root { --bg: #1b1d20; --panel: rgba(16,18,21,.94); --line: #4a5058; --txt: #f3f5f7; --dim: #a9b1ba; --acc: #2f9e6e; --acc-line: #3fbf86; --btn: #262a2f; --btn-hi: #343a41; }
+  /* Раскладка этапа 5, доработка 1 (решение 63): верх — блок в левом верхнем углу, два ряда по три
+     («Качество ▾ · Разобрать⇄Собрать · Подсветка» / «Картер · Крышка · Муфты»); низ — один ряд «◀ ■ ▶ ⟲ ⌂ Облёт» по центру.
+     Подложки нет: кнопки полупрозрачные (заливка 70 %), текст и значки непрозрачные с лёгкой тенью; размытия фона нет (дорого для телефона).
+     Телефон вертикально — оба блока во всю ширину; телефон горизонтально (высота < 500 px) — верх в один ряд из шести. */
+  :root { --bg: #1b1d20; --txt: #fff; --line: rgba(255,255,255,.28); --btn: rgba(30,34,39,.70); --btn-hi: rgba(52,58,65,.70); --acc: rgba(47,158,110,.70); --acc-line: rgba(90,215,160,.85); }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--txt);
     font: 15px/1.3 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; touch-action: none; -webkit-font-smoothing: antialiased; }
   canvas { display: block; width: 100vw; height: 100vh; touch-action: none; }
-  button { min-height: 46px; min-width: 46px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line);
+  button, .sel { min-height: 46px; min-width: 46px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line);
     background: var(--btn); color: var(--txt); font: 600 16px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; white-space: nowrap; cursor: pointer;
-    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
-  button:hover { background: var(--btn-hi); }
-  button:active { background: #414851; }
-  button:focus-visible { outline: 2px solid var(--acc-line); outline-offset: 2px; }
-  button.on { background: var(--acc); border-color: var(--acc-line); color: #fff; }
-  button:disabled, button[aria-disabled="true"] { opacity: .42; cursor: default; }
+    text-shadow: 0 1px 2px rgba(0,0,0,.85), 0 0 1px rgba(0,0,0,.9); -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  button:hover, .sel:hover { background: var(--btn-hi); }
+  button:active { background: rgba(70,78,88,.75); }
+  button:focus-visible, .sel:focus-visible { outline: 2px solid var(--acc-line); outline-offset: 2px; }
+  button.on { background: var(--acc); border-color: var(--acc-line); }
+  button:disabled, .sel:disabled { opacity: .45; cursor: default; }
   .ico { font-size: 20px; padding: 0 10px; }
+  /* «Качество» — системный список, оформленный как кнопка: на телефоне открывает системный выбор. В Safari appearance: none,
+     иначе текст пропадает на белом системном поле; варианты списка — тёмные с белым текстом (где браузер их раскрашивает) */
+  .sel { -webkit-appearance: none; appearance: none; padding-right: 30px; text-align: left; text-align-last: left;
+    background-image: linear-gradient(45deg, transparent 50%, #fff 50%), linear-gradient(135deg, #fff 50%, transparent 50%);
+    background-position: calc(100% - 17px) 52%, calc(100% - 11px) 52%; background-size: 6px 6px; background-repeat: no-repeat; }
+  .sel option { color: #fff; background: #23272c; }
 
-  #panel { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: var(--panel); border-top: 1px solid #2c3137;
-    padding: 8px max(10px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
-    display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 18px; }
-  .g { display: flex; gap: 6px; align-items: center; flex: 0 0 auto; }
-  .g + .g { position: relative; }
-  .g + .g::before { content: ""; position: absolute; left: -10px; top: 8px; bottom: 8px; width: 1px; background: #353a41; }
-  .qlbl { color: var(--dim); font-size: 14px; margin-right: 2px; }
-  #collapse, #expand { display: none; }
+  #top { position: fixed; z-index: 5; top: max(8px, env(safe-area-inset-top)); left: max(8px, env(safe-area-inset-left));
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; width: min(480px, calc(100vw - 16px)); }
+  #top > * { width: 100%; min-width: 0; }
+  #bottom { position: fixed; z-index: 5; left: 50%; transform: translateX(-50%); bottom: max(8px, env(safe-area-inset-bottom));
+    display: grid; grid-template-columns: repeat(4, 46px) 46px auto; gap: 6px; }
+  body.noq #quality { display: none; }
+  body.noq #top { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  body.noq #explode, body.noq #lights { grid-column: span 3; }
+  body.noq #housing2, body.noq #housing1, body.noq #couplings { grid-column: span 2; }
+  #legal { position: fixed; z-index: 4; right: max(10px, env(safe-area-inset-right)); bottom: calc(max(8px, env(safe-area-inset-bottom)) + 54px);
+    font-size: 11px; color: rgba(255,255,255,.82); text-shadow: 0 1px 2px #000; pointer-events: none; }
 
-  .br { display: none; }
-  /* две строки: перенос только в одном месте — после «Подсветки» (невидимый разделитель .br) */
-  @media (max-width: 1179px) {
-    #panel { flex-wrap: wrap; gap: 8px 16px; }
-    .br { display: block; flex-basis: 100%; height: 0; }
-    .g + .g::before { display: none; }
-    .g-q button { padding: 0 10px; font-size: 15px; }
-  }
-  /* телефон вертикально: 4 строки, кнопки во всю ширину ячеек */
+  /* телефон вертикально: оба блока во всю ширину, низ — шесть равных кнопок; строка © — над нижним рядом */
   @media (max-width: 639px) {
-    .br { display: none; }
-    #panel { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; justify-content: stretch;
-      padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
-    .g { gap: 6px; } .g > button { flex: 1 1 0; min-width: 0; padding: 0 6px; }
-    .g-struct { grid-area: 1 / 1 / 2 / 9; } .g-light { grid-area: 1 / 9 / 2 / 13; }
-    .g-vis { grid-area: 2 / 1 / 3 / 13; }
-    .g-drive { grid-area: 3 / 1 / 4 / 9; } .g-view { grid-area: 3 / 9 / 4 / 13; }
-    .g-q { grid-area: 4 / 1 / 5 / 13; }
-    button { min-height: 46px; font-size: 15px; }
-    .ico { font-size: 19px; }
-    body.noq #panel .g-q { display: none; }
+    #top { right: max(8px, env(safe-area-inset-right)); width: auto; }
+    #bottom { left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); transform: none; grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(0, 1.4fr); }
+    #bottom > * { min-width: 0; }
+    button, .sel { font-size: 15px; padding: 0 8px; }
+    .sel { padding-right: 26px; }
   }
-  /* телефон горизонтально: две строки + «свернуть» (панель уходит в одну кнопку справа внизу) */
+  /* телефон горизонтально: верх — один ряд из шести (или пяти в файле для сайта), низ — один ряд; кнопки 44 px */
   @media (max-height: 499px) and (min-width: 640px) {
-    .br, .qlbl { display: none; }
-    #panel { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; padding-top: 6px; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
-    .g > button { flex: 1 1 0; min-width: 0; padding: 0 6px; font-size: 15px; }
-    button { min-height: 44px; }
-    .g-struct { grid-area: 1 / 1 / 2 / 5; } .g-vis { grid-area: 1 / 5 / 2 / 11; } .g-light { grid-area: 1 / 11 / 2 / 13; }
-    .g-drive { grid-area: 2 / 1 / 3 / 5; } .g-view { grid-area: 2 / 5 / 3 / 8; } .g-q { grid-area: 2 / 8 / 3 / 13; }
-    body.noq .g-view { grid-area: 2 / 5 / 3 / 13; }
-    #collapse { display: block; position: absolute; right: max(8px, env(safe-area-inset-right)); top: -52px; min-height: 44px; }
-    body.collapsed #panel { display: none; }
-    body.collapsed #expand { display: block; position: fixed; z-index: 5; right: max(10px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom)); }
+    #top { grid-template-columns: 1.25fr 1.15fr 1.15fr 1fr 1fr 1fr; width: min(720px, calc(100vw - 16px)); }
+    body.noq #top { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    body.noq #explode, body.noq #lights, body.noq #housing2, body.noq #housing1, body.noq #couplings { grid-column: auto; }
+    button, .sel { min-height: 44px; font-size: 15px; padding: 0 8px; }
+    .sel { padding-right: 26px; }
+    #bottom { grid-template-columns: repeat(5, 44px) auto; }
+    #legal { bottom: calc(max(8px, env(safe-area-inset-bottom)) + 50px); }
   }
-  body.noq .g-q { display: none; }
 
   #load { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px;
     background: rgba(27,29,32,.78); z-index: 6; font-size: 22px; text-align: center; padding: 16px; }
   #load .pct { font-size: 46px; font-weight: 700; }
   #res { position: fixed; left: 8px; right: 8px; top: 50%; transform: translateY(-50%); max-height: 80vh; overflow: auto; z-index: 8; display: none;
-    background: rgba(10,12,14,.96); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+    background: rgba(10,12,14,.96); border: 1px solid #4a5058; border-radius: 12px; padding: 14px 16px; }
   #res pre { margin: 0; white-space: pre-wrap; word-break: break-word; font: 15px/1.45 ui-monospace, Consolas, monospace; }
   #res button { margin-top: 12px; width: 100%; }
-  /* меню разработчика (скрыто): ?dev=1 или долгое нажатие 2 с на ⌂ */
-  #dev { position: fixed; z-index: 7; top: max(8px, env(safe-area-inset-top)); left: max(8px, env(safe-area-inset-left)); display: none;
-    background: rgba(10,12,14,.92); border: 1px solid var(--line); border-radius: 10px; padding: 8px; gap: 8px; align-items: center; max-width: calc(100vw - 16px); }
+  /* меню разработчика (скрыто): ?dev=1 или долгое нажатие 2 с на ⌂; справа над нижним рядом */
+  #dev { position: fixed; z-index: 7; right: max(8px, env(safe-area-inset-right)); bottom: calc(max(8px, env(safe-area-inset-bottom)) + 76px); display: none; margin-bottom: 4px;
+    background: rgba(10,12,14,.92); border: 1px solid #4a5058; border-radius: 10px; padding: 8px; gap: 8px; align-items: center; max-width: calc(100vw - 16px); flex-wrap: wrap; justify-content: flex-end; }
   body.dev #dev { display: flex; }
-  #state { font: 13px/1.3 ui-monospace, Consolas, monospace; color: var(--dim); }
+  #state { font: 13px/1.3 ui-monospace, Consolas, monospace; color: #c9d0d7; }
   #dev button { min-height: 40px; font-size: 14px; }
 </style>
 
 </head>
 <body>
-<div id="panel" role="toolbar" aria-label="Управление">
-  <div class="g g-struct" role="group" aria-label="Структура">
-    <button id="explode" title="Разобрать редуктор (6 с)">Разобрать</button>
-    <button id="assemble" title="Собрать редуктор (6 с)">Собрать</button>
-  </div>
-  <div class="g g-vis" role="group" aria-label="Видимость">
-    <button id="housing2" class="on" aria-pressed="true" title="Показать или скрыть картер">Картер</button>
-    <button id="housing1" class="on" aria-pressed="true" title="Показать или скрыть крышку с крепежом">Крышка</button>
-    <button id="couplings" class="on" aria-pressed="true" title="Показать или скрыть разрезные муфты">Муфты</button>
-  </div>
-  <div class="g g-light" role="group" aria-label="Подсветка">
-    <button id="lights" class="on" aria-pressed="true" title="Включить или выключить подсветку">Подсветка</button>
-  </div>
-  <span class="br" aria-hidden="true"></span>
-  <div class="g g-drive" role="group" aria-label="Привод">
-    <button id="rev" class="ico" title="Вращение назад" aria-label="Вращение назад">◀</button>
-    <button id="stop" class="ico" title="Пауза" aria-label="Пауза">■</button>
-    <button id="fwd" class="ico" title="Вращение вперёд" aria-label="Вращение вперёд">▶</button>
-    <button id="reset" class="ico" title="Шестерни в исходное положение" aria-label="Шестерни в исходное положение">⟲</button>
-  </div>
-  <div class="g g-view" role="group" aria-label="Вид">
-    <button id="home" class="ico" title="Вид по умолчанию" aria-label="Вид по умолчанию">⌂</button>
-    <button id="orbit" aria-pressed="false" title="Облёт камеры вокруг модели за 10 с (повторное нажатие или касание — стоп)">Облёт</button>
-  </div>
-  <div class="g g-q" role="group" aria-label="Качество">
-    <span class="qlbl">Качество</span>
-    <button data-q="A" title="Высокое качество (для мощных ПК)">Высокое</button>
-    <button data-q="B_pc" title="Среднее качество (ПК)">Среднее</button>
-    <button data-q="B_phone" title="Низкое качество (телефоны)">Низкое</button>
-  </div>
-  <button id="collapse" class="ico" title="Свернуть панель" aria-label="Свернуть панель">▾</button>
+<div id="top" role="toolbar" aria-label="Управление">
+  <select id="quality" class="sel" aria-label="Качество" title="Качество изображения">
+    <option value="A">Высокое</option>
+    <option value="B_pc">Среднее</option>
+    <option value="B_phone">Низкое</option>
+  </select>
+  <button id="explode" aria-pressed="false" title="Разобрать или собрать редуктор (6 с)">Разобрать</button>
+  <button id="lights" class="on" aria-pressed="true" title="Включить или выключить подсветку">Подсветка</button>
+  <button id="housing2" class="on" aria-pressed="true" title="Показать или скрыть картер">Картер</button>
+  <button id="housing1" class="on" aria-pressed="true" title="Показать или скрыть крышку с крепежом">Крышка</button>
+  <button id="couplings" class="on" aria-pressed="true" title="Показать или скрыть разрезные муфты">Муфты</button>
 </div>
-<button id="expand" class="ico" title="Показать панель" aria-label="Показать панель">☰</button>
+<div id="bottom" role="toolbar" aria-label="Привод и вид">
+  <button id="rev" class="ico" title="Вращение назад" aria-label="Вращение назад">◀</button>
+  <button id="stop" class="ico" title="Пауза" aria-label="Пауза">■</button>
+  <button id="fwd" class="ico" title="Вращение вперёд" aria-label="Вращение вперёд">▶</button>
+  <button id="reset" class="ico" title="Шестерни в исходное положение" aria-label="Шестерни в исходное положение">⟲</button>
+  <button id="home" class="ico" title="Вид по умолчанию" aria-label="Вид по умолчанию">⌂</button>
+  <button id="orbit" aria-pressed="false" title="Облёт камеры вокруг модели за 10 с (повторное нажатие или касание — стоп)">Облёт</button>
+</div>
+<div id="legal">© CAIM, все права защищены. Делиться ссылкой можно.</div>
 <div id="dev" role="group" aria-label="Меню разработчика"><span id="state"></span><button id="test">Тест 10 с</button><button id="devClose" title="Закрыть меню разработчика">✕</button></div>
-<div id="load"><div>Загрузка</div><div class="pct" id="pct">0 %</div><div id="loadinfo"></div></div>
+<div id="load"><div id="loadtitle">Загрузка</div><div class="pct" id="pct">0 %</div><div id="loadinfo"></div></div>
 <div id="res"><pre id="resText"></pre><button id="resClose">Закрыть</button></div>
 <script>
 // Вращение по зубьям (решения 21, 31; notes/rotation_params.json): ось a и точка p — в системе родителя узла,
@@ -141,6 +121,7 @@
 window.__ROT_DATA = [{"n":"915-03-ШЕСТЕРНЯ:1","s":"input","k":15.118343195266272,"a":[0,0,1],"p":[0.11211,-0.33635,0.198617]},{"n":"915-04-КОЛЕСО:1","s":"intermediate","k":5.384615384615385,"a":[0,0,-1],"p":[-0.10689,-0.33635,0.201617]},{"n":"915-06-КОЛЕСО:1","s":"output","k":1.0,"a":[0,0,1],"p":[-0.0558,-0.06175,0.135397]},{"n":"915-14-КОЛЬЦО:1","s":"output","k":1.0,"a":[0,0,1],"p":[-0.0558,-0.06175,0.129897]},{"n":"Body29","s":"input","k":15.118343195266272,"a":[-1,0,0],"p":[0,0,0]},{"n":"Body3","s":"input","k":15.118343195266272,"a":[1,0,0],"p":[0,0,0]},{"n":"Body30","s":"input","k":15.118343195266272,"a":[1,0,0],"p":[0,0,0]},{"n":"Body32","s":"input","k":15.118343195266272,"a":[-1,0,0],"p":[0.0,0.0,0.00036]},{"n":"Body42","s":"intermediate","k":5.384615384615385,"a":[1,0,0],"p":[0,0,0]},{"n":"Body44","s":"intermediate","k":5.384615384615385,"a":[-1,0,0],"p":[0,0,0]},{"n":"Body45","s":"intermediate","k":5.384615384615385,"a":[-1,0,0],"p":[0,0,0]},{"n":"Body47","s":"intermediate","k":5.384615384615385,"a":[1,0,0],"p":[0,0,0]},{"n":"Body53","s":"output","k":1.0,"a":[-1,0,0],"p":[0,0,0]},{"n":"Body55","s":"output","k":1.0,"a":[1,0,0],"p":[0,0,0]},{"n":"Body57","s":"output","k":1.0,"a":[1,0,0],"p":[0,0,0]},{"n":"Body59","s":"output","k":1.0,"a":[-1,0,0],"p":[0,0,0]},{"n":"TXT915.012-МУФТА РАЗРЕЗНАЯ","s":"output","k":1.0,"a":[0,0,1],"p":[-0.0558,-0.06175,0.0]},{"n":"TXT915.012-МУФТА РАЗРЕЗНАЯ (1)","s":"output","k":1.0,"a":[0,0,1],"p":[-0.0558,-0.06175,0.121556]},{"n":"ВАЛ 3","s":"output","k":1.0,"a":[0,0,1],"p":[-0.0558,-0.06175,0.0]},{"n":"ШЕСТЕРНЯ 2","s":"intermediate","k":5.384615384615385,"a":[0,0,-1],"p":[-0.10689,-0.33635,0.0]}];
 </script>
 <script>window.__BUILD = {"name": "pages", "quality": true, "devGesture": true};</script>
+<script>window.__ASSET_SIZES = {"A_lm.glb": 13735660, "atlas_s100_ao.webp": 3523098, "garage_env_1024.hdr": 1625662, "garage_bg_3700_q92.webp": 467224, "tex_MetalSubstance005_COMPILED.webp": 572442, "tex_MetalSubstance005_COMPILED2.webp": 576850, "tex_RubberSubstance001_COMPILED_2.webp": 51190, "tex_paper_0025.webp": 413826, "B_pc_lm.glb": 10679700, "atlas_s050_ao.webp": 1325856, "garage_env_512.hdr": 415083, "garage_bg_3700_q85.webp": 259698, "B_phone_lm.glb": 8614176, "garage_bg_2048_q85.webp": 96762, "tex_MetalSubstance005_COMPILED_256.webp": 129650, "tex_MetalSubstance005_COMPILED2_256.webp": 130624, "tex_RubberSubstance001_COMPILED_2_256.webp": 51190, "tex_paper_0025_256.webp": 108686};</script>
 
 <script type="module" src="app.js"></script>
 </body>
